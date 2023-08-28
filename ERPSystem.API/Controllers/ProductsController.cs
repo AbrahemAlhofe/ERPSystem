@@ -1,4 +1,5 @@
 using ERPSystem.API.Models;
+using ERPSystem.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -8,7 +9,7 @@ namespace ERPSystem.API.Controllers
     [Route("[controller]")]
     public class ProductsController : ControllerBase
     {
-        static private readonly List<Product> products = new List<Product>();
+        private readonly ProductsRepository productsRepository = new ProductsRepository();
 
         private readonly ILogger<ProductsController> _logger;
 
@@ -20,26 +21,30 @@ namespace ERPSystem.API.Controllers
         [HttpGet]
         public ActionResult GetProducts()
         {
+
+            IEnumerable<Product> products = productsRepository.GetProducts();
+            
             return new JsonResult(products);
+
         }
 
         [HttpGet("{id}")]
         public ActionResult GetProduct(int id)
         {
-            Product product = products.Find(product => product.id == id);
+            
+            Product? product = productsRepository.GetProductById(id);
+            
             if (product == null) return new NotFoundResult();
+            
             return new JsonResult(product);
+
         }
 
         [HttpPost]
         public ActionResult PostProduct([FromQuery] string name, [FromQuery] int price)
         {
 
-            Product product = new Product { id = products.Count(), name = name, price = price };
-
-            if (product == null) return new NotFoundResult();
-
-            products.Add(product);
+            Product product = productsRepository.InsertProduct(new Product { name = name, price = price });
 
             return new JsonResult(product);
 
@@ -49,13 +54,9 @@ namespace ERPSystem.API.Controllers
         public ActionResult UpdateProduct(int id, [FromQuery] string? name, [FromQuery] int? price)
         {
 
-            Product product = products.Find(product => product.id == id);
+            Product? product = productsRepository.UpdateProductById(id, new Product { name = name, price = price });
 
             if (product == null) return new NotFoundResult();
-
-            if (name != null) product.name = name;
-
-            if (price != null) product.price = (int)price;
 
             return new JsonResult(product);
 
@@ -64,9 +65,11 @@ namespace ERPSystem.API.Controllers
         [HttpDelete("{id}")]
         public ActionResult DeleteProduct(int id)
         {
-            Product product = products.Find(product => product.id == id);
+            
+            Product? product = productsRepository.DeleteProductById(id);
+
             if (product == null) return new NotFoundResult();
-            products.RemoveAt(id);
+            
             return new JsonResult(product);
         }
 
