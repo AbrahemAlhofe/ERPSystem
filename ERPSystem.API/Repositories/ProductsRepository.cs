@@ -1,28 +1,35 @@
-﻿using ERPSystem.API.Models;
+﻿using ERPSystem.API.Contexts;
+using ERPSystem.API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ERPSystem.API.Repositories
 {
     public class ProductsRepository
     {
 
-        static private readonly List<Product> products = new List<Product>();
+        private readonly TemporaryContext context;
+
+        public ProductsRepository (TemporaryContext context)
+        {
+            this.context = context;
+        }
 
         public IEnumerable<Product> GetProducts ()
         {
-            return products;
+            return context.Products.ToList();
         }
 
         public Product? GetProductById (int id)
         {
-            return products.Find(product => product.id == id);
+            return context.Products.Where(product => product.id == id).FirstOrDefault();
         }
 
         public Product InsertProduct (Product product)
         {
             
-            product.id = products.Count();
-            
-            products.Add(product);
+            context.Products.Add(product);
+
+            context.SaveChanges();
 
             return product;
 
@@ -39,6 +46,8 @@ namespace ERPSystem.API.Repositories
 
             if (mutation.price != null) product.price = mutation.price;
 
+            context.SaveChanges();
+
             return product;
 
         }
@@ -46,11 +55,13 @@ namespace ERPSystem.API.Repositories
         public Product? DeleteProductById (int id)
         {
 
-            Product? product = products.Find(product => product.id == id);
+            Product? product = GetProductById(id);
 
             if (product == null) return null;
 
-            products.RemoveAt(id);
+            context.Products.Remove(product);
+
+            context.SaveChanges();
 
             return product;
 

@@ -1,6 +1,8 @@
+using ERPSystem.API.Contexts;
 using ERPSystem.API.Models;
 using ERPSystem.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace ERPSystem.API.Controllers
@@ -9,13 +11,14 @@ namespace ERPSystem.API.Controllers
     [Route("[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly ProductsRepository productsRepository = new ProductsRepository();
+        private readonly ProductsRepository productsRepository;
 
         private readonly ILogger<ProductsController> _logger;
 
-        public ProductsController(ILogger<ProductsController> logger)
+        public ProductsController(ILogger<ProductsController> logger, TemporaryContext context)
         {
             _logger = logger;
+            productsRepository = new ProductsRepository(context);
         }
 
         [HttpGet]
