@@ -35,16 +35,10 @@ namespace ERPSystem.API.Repositories
 
         }
 
-        public Product? UpdateProductById (int id, Product mutation)
+        public Product? UpdateProduct (Product product)
         {
 
-            Product? product = GetProductById(id);
-
-            if (product == null) return null;
-            
-            if (mutation.name != null) product.name = mutation.name;
-
-            if (mutation.price != null) product.price = mutation.price;
+            context.Update(product);
 
             context.SaveChanges();
 

@@ -54,10 +54,10 @@ namespace ERPSystem.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult UpdateProduct(int id, [FromQuery] string? name, [FromQuery] int? price)
+        public ActionResult UpdateProduct([FromQuery] Product targetProduct)
         {
 
-            Product? product = productsRepository.UpdateProductById(id, new Product { name = name, price = price });
+            Product? product = productsRepository.UpdateProduct(targetProduct);
 
             if (product == null) return new NotFoundResult();
 
